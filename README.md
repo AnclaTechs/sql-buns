@@ -85,7 +85,7 @@ If you want to work directly with the underlying driver, SQL-Buns also exposes a
 - **SQLite** → supports common methods:
   `get`, `all`, `run`, `exec`, `each`, `close`
 
----
+## You don’t lose any power — all native pool methods are available.
 
 #### PostgreSQL Example
 
@@ -95,6 +95,22 @@ const { pool } = require("@anclatechs/sql-buns");
 async function yourFunction() {
   const result = await pool.query("SELECT NOW()");
   console.log(result.rows);
+}
+
+async function yourFunctionII() {
+  const connection = await pool.connect();
+  try {
+    await connection.query("BEGIN");
+
+    await connection.query("...");
+    await connection.query("...");
+    await connection.query("COMMIT");
+  } catch (err) {
+    await connection.query("ROLLBACK");
+    throw err;
+  } finally {
+    connection.release();
+  }
 }
 ```
 
@@ -108,6 +124,22 @@ const { pool } = require("@anclatechs/sql-buns");
 async function yourFunction() {
   const [rows] = await pool.query("SELECT NOW()");
   console.log(rows);
+}
+
+async function yourFunctionII() {
+  const connection = await pool.getConnection();
+  try {
+    await connection.beginTransaction();
+
+    await connection.query("...");
+    await connection.query("...");
+    await connection.commit();
+  } catch (err) {
+    await connection.rollback();
+    throw err;
+  } finally {
+    connection.release();
+  }
 }
 ```
 
