@@ -29,7 +29,6 @@ if (fs.existsSync(DB_PATH)) {
 
 const {
   pool,
-  getDatabaseConfig,
   getSingleRow,
   createRowAndReturn,
   RecordDoesNotExist,
