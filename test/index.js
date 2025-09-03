@@ -3,11 +3,25 @@ const fs = require("fs");
 const path = require("path");
 
 // Reset DB
-const DB_PATH = path.resolve(
-  __dirname,
-  "..",
-  process.env.DATABASE_NAME || "database.sqlite"
-);
+function resolveTestDbPath() {
+  if (process.env.DATABASE_URL) {
+    if (process.env.DATABASE_URL.startsWith("file:")) {
+      const rawPath = process.env.DATABASE_URL.replace(/^file:/, "");
+      return path.isAbsolute(rawPath)
+        ? rawPath
+        : path.resolve(process.cwd(), rawPath);
+    } else {
+      throw new Error(
+        "Invalid DATABASE_URL for sqlite. Expected format: file:./database.sqlite"
+      );
+    }
+  }
+
+  const dbName = process.env.DATABASE_NAME || "database.sqlite";
+  return path.resolve(process.cwd(), dbName);
+}
+
+const DB_PATH = resolveTestDbPath();
 
 if (fs.existsSync(DB_PATH)) {
   fs.unlinkSync(DB_PATH);
@@ -15,6 +29,7 @@ if (fs.existsSync(DB_PATH)) {
 
 const {
   pool,
+  getDatabaseConfig,
   getSingleRow,
   createRowAndReturn,
   RecordDoesNotExist,

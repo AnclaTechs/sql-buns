@@ -37,7 +37,35 @@ const validateConfig = () => {
  * @throws {Error} If the database engine is unsupported.
  */
 const getDatabaseConfig = () => {
-  const baseConfig = {
+  let baseConfig = {};
+  if (process.env.DATABASE_URL) {
+    if (SQL_ENGINE === "sqlite") {
+      if (process.env.DATABASE_URL.startsWith("file:")) {
+        const rawPath = process.env.DATABASE_URL.replace(/^file:/, "");
+        return {
+          filename: path.isAbsolute(rawPath)
+            ? rawPath
+            : path.join(process.cwd(), rawPath),
+        };
+      }
+      throw new Error(
+        "Invalid DATABASE_URL for sqlite. Expected format: file:./database.sqlite"
+      );
+    } else {
+      // For postgres/mysql we parse the connection string
+      const url = new URL(process.env.DATABASE_URL);
+      baseConfig = {
+        host: url.hostname,
+        port: url.port,
+        user: url.username,
+        password: url.password,
+        database: url.pathname.replace(/^\//, ""),
+      };
+    }
+  }
+
+  // Fallback to individual env vars
+  baseConfig = {
     host: process.env.DATABASE_HOST,
     user: process.env.DATABASE_USER,
     password: process.env.DATABASE_PASSWORD,
@@ -60,10 +88,16 @@ const getDatabaseConfig = () => {
         idleTimeoutMillis: process.env.PG_IDLE_TIMEOUT || 30000,
       };
     case "sqlite":
+      if (process.env.DATABASE_NAME) {
+        const dbName = process.env.DATABASE_NAME;
+        return {
+          filename: path.isAbsolute(dbName)
+            ? dbName
+            : path.join(process.cwd(), dbName),
+        };
+      }
       return {
-        filename:
-          process.env.DATABASE_NAME ||
-          path.join(__dirname, "../database.sqlite"),
+        filename: path.join(process.cwd(), "database.sqlite"),
       };
     default:
       throw new Error(`Unsupported database engine: ${SQL_ENGINE}`);

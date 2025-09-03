@@ -1,6 +1,6 @@
 {
   "name": "@anclatechs/sql-buns",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Lightweight SQL utility for Node.js (MySQL, PostgreSQL, SQLite) with raw queries",
   "main": "src/dist.js",
   "exports": {
@@ -22,7 +22,7 @@
     "anclatechs"
   ],
   "scripts": {
-    "test:functions": "cd test && node index.js",
+    "test:functions": "node test/index.js",
     "test": "npm run test:functions && exit 1"
   },
   "author": "Ancla Technologies (AnclaTechs)",
