@@ -64,14 +64,14 @@ const {
   createRowAndReturn,
   RecordDoesNotExist,
   NonUniqueRecordError,
-} = require("sql-buns");
+} = require("@anclatechs/sql-buns");
 ```
 
 Or if you like the modular path:
 
 ```javascript
-const { getSingleRow } = require("sql-buns/functions");
-const { RecordDoesNotExist } = require("sql-buns/errors");
+const { getSingleRow } = require("@anclatechs/sql-buns/functions");
+const { RecordDoesNotExist } = require("@anclatechs/sql-buns/errors");
 ```
 
 ---
@@ -90,7 +90,7 @@ If you want to work directly with the underlying driver, SQL-Buns also exposes a
 #### PostgreSQL Example
 
 ```js
-const { pool } = require("sql-buns");
+const { pool } = require("@anclatechs/sql-buns");
 
 async function yourFunction() {
   const result = await pool.query("SELECT NOW()");
@@ -103,7 +103,7 @@ async function yourFunction() {
 #### MySQL Example
 
 ```js
-const { pool } = require("sql-buns");
+const { pool } = require("@anclatechs/sql-buns");
 
 async function yourFunction() {
   const [rows] = await pool.query("SELECT NOW()");
@@ -118,7 +118,7 @@ async function yourFunction() {
 #### SQLite Example
 
 ```js
-const { pool } = require("sql-buns");
+const { pool } = require("@anclatechs/sql-buns");
 
 async function yourFunction() {
   const row = await pool.get("SELECT 1 as value");
@@ -137,7 +137,7 @@ const {
   getSingleRow,
   createRowAndReturn,
   RecordDoesNotExist,
-} = require("sql-buns");
+} = require("@anclatechs/sql-buns");
 ```
 
 ```javascript

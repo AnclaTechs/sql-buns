@@ -18,7 +18,7 @@ const {
   getSingleRow,
   createRowAndReturn,
   RecordDoesNotExist,
-} = require("sql-buns");
+} = require("@anclatechs/sql-buns");
 
 async function runTests() {
   // Create a User table
