@@ -85,7 +85,9 @@ If you want to work directly with the underlying driver, SQL-Buns also exposes a
 - **SQLite** → supports common methods:
   `get`, `all`, `run`, `exec`, `each`, `close`
 
-## You don’t lose any power — all native pool methods are available.
+You don’t lose any power — all native pool methods are available.
+
+<br/>
 
 #### PostgreSQL Example
 
@@ -143,10 +145,6 @@ async function yourFunctionII() {
 }
 ```
 
----
-
-### Utility Functions
-
 #### SQLite Example
 
 ```js
@@ -158,7 +156,13 @@ async function yourFunction() {
 }
 ```
 
-⚡ **Tip:** This means you can use SQL-Buns helpers (`getSingleRow`, `createRowAndReturn`) when you want safety, and drop down to the raw driver when you need full flexibility.
+<br/>
+
+---
+
+### Utility Functions
+
+⚡ **Tip:** This means you can use SQL-Buns helpers (`getSingleRow`, `createRowAndReturn`) when you want safety, and you can always drop down to the raw driver when you need full flexibility.
 
 ```javascript
 // Load environment variables first
