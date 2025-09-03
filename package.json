@@ -1,0 +1,42 @@
+{
+  "name": "sql-buns",
+  "version": "1.0.0",
+  "description": "Lightweight SQL utility for Node.js (MySQL, PostgreSQL, SQLite) with raw queries",
+  "main": "src/dist.js",
+  "exports": {
+    ".": "./src/dist.js",
+    "./errors": "./src/errors.js",
+    "./functions": "./src/functions.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AnclaTechs/sql-buns.git"
+  },
+  "keywords": [
+    "sql",
+    "postgres",
+    "mysql",
+    "sqlite",
+    "node",
+    "database"
+  ],
+  "scripts": {
+    "test:functions": "cd test && node index.js",
+    "test": "npm run test:functions && exit 1"
+  },
+  "author": "Ancla Technologies (AnclaTechs)",
+  "license": "MIT",
+  "engines": {
+    "node": ">=14"
+  },
+  "dependencies": {
+    "mysql2": "^3.9.7",
+    "pg": "^8.11.5",
+    "sqlite": "^5.1.1",
+    "sqlite3": "^5.1.7"
+  },
+  "devDependencies": {
+    "dotenv": "^17.2.1",
+    "typescript": "^5.9.2"
+  }
+}
