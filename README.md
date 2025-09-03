@@ -25,7 +25,7 @@ SQL-Buns is for developers who want to keep their queries clean and avoid writin
 ### 🚀 Installation
 
 ```bash
-npm install sql-buns
+npm install @anclatechs/sql-buns
 ```
 
 ### ⚙️ Setup
