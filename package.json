@@ -18,7 +18,8 @@
     "mysql",
     "sqlite",
     "node",
-    "database"
+    "database",
+    "anclatechs"
   ],
   "scripts": {
     "test:functions": "cd test && node index.js",
