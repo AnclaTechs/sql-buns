@@ -317,7 +317,7 @@ onboardNewUser();
 SQL-Buns is intentionally **not an ORM** — it’s about giving you direct access with an extra-light utility belt. But we know some teams want more structure.
 
 - **Group transaction helper** → wrap multiple SQL operations together as one atomic operation. They either all succeed or all fail. If one query breaks, nothing is saved.
-  ![Completed](https://img.shields.io/badge/status-completed-green)
+  ![Completed](https://img.shields.io/badge/status-completed-green) - [bbccb39](https://github.com/AnclaTechs/sql-buns/pull/1)
 
 - **Bulk insert with return** → inserting one row and returning it is straightforward; this will let you insert many rows at once and get them all back in a single call.
   ![Planned](https://img.shields.io/badge/status-planned-blue)
