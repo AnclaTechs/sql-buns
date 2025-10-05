@@ -32,6 +32,36 @@ declare module "@anclatechs/sql-buns" {
     existingConnection?: any
   ): Promise<T>;
 
+
+  /**
+ * Executes multiple SQL statements in a single transaction.
+ * Works consistently across PostgreSQL, MySQL, and SQLite. 
+ *
+ * Each command object: { sql: string, params?: array }
+ *
+ * Returns a unified JSON response:
+ * {
+ *   success: boolean,
+ *   engine: string,
+ *   executed: [
+ *     { sql, changes, lastInsertId, message }
+ *   ],
+ *   error?: string
+ * }
+ * 
+ */
+export function batchTransaction<T = any>(
+  queries: { sql: string; params?: any[] }[],
+  existingConnection?: any
+): Promise<{
+  success: boolean;
+  engine: string;
+  executed: T[];
+  error: any;
+}>;
+
   export class RecordDoesNotExist extends Error {}
   export class NonUniqueRecordError extends Error {}
+  export class UnsupportedSQLEngineError extends Error {}
+
 }

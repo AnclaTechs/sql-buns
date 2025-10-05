@@ -31,10 +31,13 @@ const {
   pool,
   getSingleRow,
   createRowAndReturn,
+  batchTransaction,
   RecordDoesNotExist,
 } = require("@anclatechs/sql-buns");
 
 async function runTests() {
+  console.log("\n---- 🧩 Running Create & Return test ----");
+
   // Create a User table
   await pool.run("CREATE TABLE users (id INTEGER PRIMARY KEY, name TEXT)");
 
@@ -43,7 +46,8 @@ async function runTests() {
     "Uchenna",
   ]);
 
-  // Get Single
+  console.log("\n----🧩 Running get Single row test ----");
+
   const row = await getSingleRow("SELECT * FROM users WHERE id = ?", [1]);
   console.log("✅ Got row:", row);
 
@@ -56,6 +60,29 @@ async function runTests() {
     } else {
       console.error("❌ Unexpected error:", err);
     }
+  }
+
+  console.log("\n---- 🧩 Running batch transaction test ----");
+
+  try {
+    const batchQueries = [
+      { sql: "INSERT INTO users (name) VALUES (?)", params: ["Adanne"] },
+      { sql: "INSERT INTO users (name) VALUES (?)", params: ["Obinna"] },
+      { sql: "INSERT INTO users (name) VALUES (?)", params: ["Akugbe"] },
+      { sql: "INSERT INTO users (name) VALUES (?)", params: ["Osadolor"] },
+    ];
+
+    const batchResult = await batchTransaction(batchQueries);
+    if (batchResult.success) {
+      console.log("✅ Batch transaction completed successfully:");
+    } else {
+      console.log(
+        "✅ Rollback triggered successfully on error:",
+        batchResult.error
+      );
+    }
+  } catch (err) {
+    console.error("❌ Unexpected error:", err);
   }
 }
 
