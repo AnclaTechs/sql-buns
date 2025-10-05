@@ -281,19 +281,19 @@ const fetched = await getSingleRow("SELECT * FROM users WHERE email = ?", [
   async function onboardNewUser() {
   const queries = [
     {
-      sql: "INSERT INTO users (name, email) VALUES ($1, $2)",
+      sql: "INSERT INTO users (name, email) VALUES (?, ?)",
       params: ["Olaronke Alice", "ola@example.com"],
     },
     {
-      sql: "INSERT INTO wallets (user_id, balance) VALUES ((SELECT id FROM users WHERE email = $1), $2)",
+      sql: "INSERT INTO wallets (user_id, balance) VALUES ((SELECT id FROM users WHERE email = ?), ?)",
       params: ["ola@example.com", 1000],
     },
     {
-      sql: "INSERT INTO logs (user_id, action) VALUES ((SELECT id FROM users WHERE email = $1), $2)",
+      sql: "INSERT INTO logs (user_id, action) VALUES ((SELECT id FROM users WHERE email = ?), ?)",
       params: ["ola@example.com", "USER_ONBOARD"],
     },
     {
-      sql: "INSERT INTO user_roles (user_id, role) VALUES ((SELECT id FROM users WHERE email = $1), $2)",
+      sql: "INSERT INTO user_roles (user_id, role) VALUES ((SELECT id FROM users WHERE email = ?), ?)",
       params: ["ola@example.com", "basic"],
     },
   ];
