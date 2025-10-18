@@ -196,7 +196,7 @@ const {
   RecordDoesNotExist,
 } = require("@anclatechs/sql-buns");
 
-# Example
+# Examples
 const users = await getAllRows("SELECT * FROM users");
 ```
 
