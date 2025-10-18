@@ -56,6 +56,38 @@ const getSingleRow = async (sql, params) => {
   }
 };
 
+const getAllRows = async (sql, params = []) => {
+  const engine = process.env.DATABASE_ENGINE;
+
+  if (!["postgres", "mysql", "sqlite"].includes(engine)) {
+    throw new Error(
+      "Unsupported DATABASE_ENGINE. Use 'postgres', 'mysql', or 'sqlite'."
+    );
+  }
+
+  let connection;
+  try {
+    if (engine === "sqlite") {
+      connection = pool;
+      return await connection.all(sql, params); // Default ARRAY []
+    } else {
+      connection =
+        engine === "postgres"
+          ? await pool.connect()
+          : await pool.getConnection();
+
+      const rawResult = await connection.query(sql, params);
+      return engine === "postgres" ? rawResult.rows : rawResult[0]; // ARRAY []
+    }
+  } catch (error) {
+    throw error; // Re-throw to let caller handle (Table missing etc.)
+  } finally {
+    if (connection && engine !== "sqlite") {
+      connection.release();
+    }
+  }
+};
+
 const createRowAndReturn = async (
   tableName,
   sql,
@@ -276,6 +308,7 @@ async function batchTransaction(commands = []) {
 }
 module.exports = {
   getSingleRow,
+  getAllRows,
   createRowAndReturn,
   batchTransaction,
 };

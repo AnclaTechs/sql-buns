@@ -11,8 +11,9 @@ It currently supports **PostgreSQL**, **MySQL**, and **SQLite**.
 ### ✨ Why SQL-Buns?
 
 - **Direct SQL First:** You're in charge of your queries.
-- **Three Sharp Tools (for now):**
+- **Four Sharp Tools (for now):**
   - `getSingleRow` → A function that fetches exactly one row (and throws an error if it finds zero or more than one).
+  - `getAllRows` → A function that executes a parameterized SELECT query and returns all matching rows.
   - `createRowAndReturn` → A quick way to insert a row and get the result back right away.
   - `batchTransaction` → Clean utility function to executes multiple SQL commands as a single atomic transaction.
 - It provides clear errors like `RecordDoesNotExist` and `NonUniqueRecordError`.
@@ -77,6 +78,7 @@ When both `DATABASE_URL` and individual configs are present, `DATABASE_URL` take
 ```javascript
 const {
   pool,
+  getAllRows,
   getSingleRow,
   createRowAndReturn,
   batchTransaction,
@@ -180,7 +182,7 @@ async function yourFunction() {
 
 ### Utility Functions
 
-⚡ **Tip:** This means you can use SQL-Buns helpers (`getSingleRow`, `createRowAndReturn`) when you want safety, and you can always drop down to the raw driver when you need full flexibility.
+⚡ **Tip:** This means you can use SQL-Buns helpers (`getAllRows`, `getSingleRow`, `batchTransaction`, `createRowAndReturn` etc.) when you want safety, and you can always drop down to the raw driver when you need full flexibility.
 
 ```javascript
 // Load environment variables first
@@ -188,10 +190,14 @@ require("dotenv").config();
 
 const {
   pool,
+  getAllRows,
   getSingleRow,
   createRowAndReturn,
   RecordDoesNotExist,
 } = require("@anclatechs/sql-buns");
+
+# Example
+const users = await getAllRows("SELECT * FROM users");
 ```
 
 <details>

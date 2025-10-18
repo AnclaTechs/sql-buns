@@ -14,6 +14,35 @@ declare module "@anclatechs/sql-buns" {
    */
   export const pool: DatabasePool;
 
+
+  /**
+ * This utility abstracts database engine differences (Postgres, MySQL, SQLite) to fetch
+ * multiple rows in a consistent way. It acquires a connection if needed, executes the query,
+ * and releases resources automatically. Use this for SELECT queries expecting zero or more results.
+ * 
+ * 
+ * @param sql - The SQL query string (e.g., `SELECT * FROM users WHERE active = ?`).
+ * @param params - Optional array of parameter values for safe query parameterization (e.g., `['true']`).
+ * 
+ * @returns A promise that resolves to an array of row objects matching type `T[]`. Returns an empty array `[]` if no rows match.
+ * 
+ * @throws {Error} If the `DATABASE_ENGINE` env var is unsupported (`postgres`, `mysql`, or `sqlite` only).
+ * @throws {Error} On connection failures, invalid SQL syntax, non-existent tables, or other database-level errors
+ * 
+ * @example
+ * // Basic usage (assumes DATABASE_ENGINE=postgres)
+ * const users = await getAllRows<User>(
+ *   `SELECT id, name FROM users WHERE age > ?`,
+ *   [18]
+ * );
+ * // users: User[] (or [])
+ *
+ */
+export function getAllRows<T = any>(
+  sql: string,
+  params?: any[]
+): Promise<T[]>;
+
   /**
    * Utility Function: Fetch a single row or throw if not found.
    */

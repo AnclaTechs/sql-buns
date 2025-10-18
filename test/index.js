@@ -33,6 +33,7 @@ const {
   createRowAndReturn,
   batchTransaction,
   RecordDoesNotExist,
+  getAllRows,
 } = require("@anclatechs/sql-buns");
 
 async function runTests() {
@@ -81,6 +82,14 @@ async function runTests() {
         batchResult.error
       );
     }
+  } catch (err) {
+    console.error("❌ Unexpected error:", err);
+  }
+
+  console.log("\n---- 🧩 Running get all rows ----");
+  try {
+    const users = await getAllRows("SELECT * FROM users");
+    console.log(`✅ Returned: ${users.length} Users`);
   } catch (err) {
     console.error("❌ Unexpected error:", err);
   }

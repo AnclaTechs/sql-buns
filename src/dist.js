@@ -1,5 +1,6 @@
 const pool = require("./index");
 const {
+  getAllRows,
   getSingleRow,
   createRowAndReturn,
   batchTransaction,
@@ -12,6 +13,7 @@ const {
 
 module.exports = {
   pool,
+  getAllRows,
   getSingleRow,
   createRowAndReturn,
   batchTransaction,
