@@ -1,11 +1,23 @@
 const pool = require("./index");
-const { getSingleRow, createRowAndReturn } = require("./functions");
-const { RecordDoesNotExist, NonUniqueRecordError } = require("./errors");
+const {
+  getAllRows,
+  getSingleRow,
+  createRowAndReturn,
+  batchTransaction,
+} = require("./functions");
+const {
+  RecordDoesNotExist,
+  NonUniqueRecordError,
+  UnsupportedSQLEngineError,
+} = require("./errors");
 
 module.exports = {
   pool,
+  getAllRows,
   getSingleRow,
   createRowAndReturn,
+  batchTransaction,
   RecordDoesNotExist,
   NonUniqueRecordError,
+  UnsupportedSQLEngineError,
 };

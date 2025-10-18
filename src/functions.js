@@ -1,5 +1,10 @@
-const { RecordDoesNotExist, NonUniqueRecordError } = require("./errors");
+const {
+  RecordDoesNotExist,
+  NonUniqueRecordError,
+  UnsupportedSQLEngineError,
+} = require("./errors");
 const pool = require("./index");
+const SQL_ENGINE = process.env.DATABASE_ENGINE || "sqlite";
 
 const getSingleRow = async (sql, params) => {
   const engine = process.env.DATABASE_ENGINE;
@@ -46,6 +51,38 @@ const getSingleRow = async (sql, params) => {
   } finally {
     if (connection && engine !== "sqlite") {
       // Release the connection where it's avaialable
+      connection.release();
+    }
+  }
+};
+
+const getAllRows = async (sql, params = []) => {
+  const engine = process.env.DATABASE_ENGINE;
+
+  if (!["postgres", "mysql", "sqlite"].includes(engine)) {
+    throw new Error(
+      "Unsupported DATABASE_ENGINE. Use 'postgres', 'mysql', or 'sqlite'."
+    );
+  }
+
+  let connection;
+  try {
+    if (engine === "sqlite") {
+      connection = pool;
+      return await connection.all(sql, params); // Default ARRAY []
+    } else {
+      connection =
+        engine === "postgres"
+          ? await pool.connect()
+          : await pool.getConnection();
+
+      const rawResult = await connection.query(sql, params);
+      return engine === "postgres" ? rawResult.rows : rawResult[0]; // ARRAY []
+    }
+  } catch (error) {
+    throw error; // Re-throw to let caller handle (Table missing etc.)
+  } finally {
+    if (connection && engine !== "sqlite") {
       connection.release();
     }
   }
@@ -154,7 +191,124 @@ const createRowAndReturn = async (
   }
 };
 
+/**
+ * Executes multiple SQL statements as a single transaction.
+ * Each command object: { sql: string, params?: array }
+ *
+ * Returns a unified JSON response:
+ * {
+ *   success: boolean,
+ *   engine: string,
+ *   executed: [
+ *     { sql, changes, lastInsertId, message }
+ *   ],
+ *   error?: string
+ * }
+ */
+async function batchTransaction(commands = []) {
+  if (!Array.isArray(commands) || commands.length === 0) {
+    throw new Error(
+      "batchTransaction expects a non-empty array of SQL commands"
+    );
+  }
+
+  const summary = {
+    success: false,
+    engine: SQL_ENGINE,
+    executed: [],
+    error: null,
+  };
+
+  let connection;
+
+  try {
+    switch (SQL_ENGINE) {
+      case "postgres": {
+        connection = await pool.connect();
+        await connection.query("BEGIN");
+
+        for (const { sql, params = [] } of commands) {
+          const result = await connection.query(sql, params);
+          summary.executed.push({
+            sql,
+            changes: result.rowCount || 0,
+            lastInsertId:
+              result.rows?.[0]?.id ?? result.rows?.[0]?.lastInsertId ?? null,
+            message: "Executed successfully",
+          });
+        }
+
+        await connection.query("COMMIT");
+        summary.success = true;
+        break;
+      }
+
+      case "mysql": {
+        connection = await pool.getConnection();
+        await connection.beginTransaction();
+
+        for (const { sql, params = [] } of commands) {
+          const [rows, fields] = await connection.query(sql, params);
+          summary.executed.push({
+            sql,
+            changes: rows.affectedRows || 0,
+            lastInsertId: rows.insertId || null,
+            message: "Executed successfully",
+          });
+        }
+
+        await connection.commit();
+        summary.success = true;
+        break;
+      }
+
+      case "sqlite": {
+        await pool.exec("BEGIN TRANSACTION");
+
+        for (const { sql, params = [] } of commands) {
+          const result = await pool.run(sql, params);
+          summary.executed.push({
+            sql,
+            changes: result.changes || 0,
+            lastInsertId: result.lastID || null,
+            message: "Executed successfully",
+          });
+        }
+
+        await pool.exec("COMMIT");
+        summary.success = true;
+        break;
+      }
+
+      default:
+        throw new UnsupportedSQLEngineError(SQL_ENGINE);
+    }
+
+    return summary;
+  } catch (error) {
+    summary.error = error.message;
+    summary.success = false;
+
+    try {
+      if (SQL_ENGINE === "postgres" && connection) {
+        await connection.query("ROLLBACK");
+      } else if (SQL_ENGINE === "mysql" && connection) {
+        await connection.rollback();
+      } else if (SQL_ENGINE === "sqlite") {
+        await pool.exec("ROLLBACK");
+      }
+    } catch (rollbackErr) {
+      console.error("Rollback failed:", rollbackErr.message);
+    }
+
+    return summary;
+  } finally {
+    if (connection?.release) connection.release();
+  }
+}
 module.exports = {
   getSingleRow,
+  getAllRows,
   createRowAndReturn,
+  batchTransaction,
 };

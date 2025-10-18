@@ -11,9 +11,11 @@ It currently supports **PostgreSQL**, **MySQL**, and **SQLite**.
 ### ✨ Why SQL-Buns?
 
 - **Direct SQL First:** You're in charge of your queries.
-- **Two Sharp Tools (for now):**
+- **Four Sharp Tools (for now):**
   - `getSingleRow` → A function that fetches exactly one row (and throws an error if it finds zero or more than one).
+  - `getAllRows` → A function that executes a parameterized SELECT query and returns all matching rows.
   - `createRowAndReturn` → A quick way to insert a row and get the result back right away.
+  - `batchTransaction` → Clean utility function to executes multiple SQL commands as a single atomic transaction.
 - It provides clear errors like `RecordDoesNotExist` and `NonUniqueRecordError`.
 - **Simple Setup:** No hidden configs. Just respects your `.env` file setup.
 - **Lean and Mean:** This isn't a bloated ORM; it’s just the SQL help you need.
@@ -32,22 +34,38 @@ npm install @anclatechs/sql-buns
 
 SQL-Buns connects to your database using environment variables.
 
-You'll need to define the following variables in your `.env` file:
+You can use a single `DATABASE_URL` in your `.env` file or define each setting separately — whichever fits your workflow best.
+
+#### Option 1: Using a connection URL
+
+Supported formats:
+
+```bash
+# PostgreSQL
+DATABASE_URL=postgres://USER:PASSWORD@HOST:PORT/DBNAME
+
+# MySQL
+DATABASE_URL=mysql://USER:PASSWORD@HOST:PORT/DBNAME
+
+# SQLite
+DATABASE_URL=file:./database.sqlite
+```
+
+#### Option 2: Using individual variables
+
+If `DATABASE_URL` is not provided, SQL-Buns falls back to these:
 
 ```bash
 DATABASE_ENGINE=postgres  # or mysql | sqlite
 DATABASE_HOST=localhost
+DATABASE_PORT=5432
 DATABASE_USER=myuser
 DATABASE_PASSWORD=secret
-DATABASE_NAME=mydb
+DATABASE_NAME=mydb # or ./database.sqlite
 ```
 
-For SQLite, you only need to set these two variables:
-
-```bash
-DATABASE_ENGINE=sqlite
-DATABASE_NAME=./database.sqlite
-```
+#### Nota Bene:
+When both `DATABASE_URL` and individual configs are present, `DATABASE_URL` takes priority.
 
 ---
 
@@ -60,8 +78,10 @@ DATABASE_NAME=./database.sqlite
 ```javascript
 const {
   pool,
+  getAllRows,
   getSingleRow,
   createRowAndReturn,
+  batchTransaction,
   RecordDoesNotExist,
   NonUniqueRecordError,
 } = require("@anclatechs/sql-buns");
@@ -162,7 +182,7 @@ async function yourFunction() {
 
 ### Utility Functions
 
-⚡ **Tip:** This means you can use SQL-Buns helpers (`getSingleRow`, `createRowAndReturn`) when you want safety, and you can always drop down to the raw driver when you need full flexibility.
+⚡ **Tip:** This means you can use SQL-Buns helpers (`getAllRows`, `getSingleRow`, `batchTransaction`, `createRowAndReturn` etc.) when you want safety, and you can always drop down to the raw driver when you need full flexibility.
 
 ```javascript
 // Load environment variables first
@@ -170,11 +190,18 @@ require("dotenv").config();
 
 const {
   pool,
+  getAllRows,
   getSingleRow,
   createRowAndReturn,
   RecordDoesNotExist,
 } = require("@anclatechs/sql-buns");
+
+# Examples
+const users = await getAllRows("SELECT * FROM users");
 ```
+
+<details>
+  <summary>PostgreSQL Example</summary>
 
 ```javascript
 ...
@@ -204,9 +231,44 @@ try {
     }
   }
 
+  async function onboardNewUser() {
+  const queries = [
+    {
+      sql: "INSERT INTO users (name, email) VALUES ($1, $2)",
+      params: ["Olaronke Alice", "ola@example.com"],
+    },
+    {
+      sql: "INSERT INTO wallets (user_id, balance) VALUES ((SELECT id FROM users WHERE email = $1), $2)",
+      params: ["ola@example.com", 1000],
+    },
+    {
+      sql: "INSERT INTO logs (user_id, action) VALUES ((SELECT id FROM users WHERE email = $1), $2)",
+      params: ["ola@example.com", "USER_ONBOARD"],
+    },
+    {
+      sql: "INSERT INTO user_roles (user_id, role) VALUES ((SELECT id FROM users WHERE email = $1), $2)",
+      params: ["ola@example.com", "basic"],
+    },
+  ];
+
+  const result = await batchTransaction(queries);
+  if(result.success){
+    // 
+  }else{
+    // Automated rollback
+  }
+}
+
+onboardNewUser();
+
 ```
 
-### MySQL or Sqlite
+
+</details>
+
+<details>
+  <summary>MySQL or Sqlite Example</summary>
+
 
 ```javascript
 const user = await createRowAndReturn(
@@ -220,14 +282,48 @@ console.log("Inserted user:", user);
 const fetched = await getSingleRow("SELECT * FROM users WHERE email = ?", [
   "olaronke.alice@example.com",
 ]);
+
+
+  async function onboardNewUser() {
+  const queries = [
+    {
+      sql: "INSERT INTO users (name, email) VALUES (?, ?)",
+      params: ["Olaronke Alice", "ola@example.com"],
+    },
+    {
+      sql: "INSERT INTO wallets (user_id, balance) VALUES ((SELECT id FROM users WHERE email = ?), ?)",
+      params: ["ola@example.com", 1000],
+    },
+    {
+      sql: "INSERT INTO logs (user_id, action) VALUES ((SELECT id FROM users WHERE email = ?), ?)",
+      params: ["ola@example.com", "USER_ONBOARD"],
+    },
+    {
+      sql: "INSERT INTO user_roles (user_id, role) VALUES ((SELECT id FROM users WHERE email = ?), ?)",
+      params: ["ola@example.com", "basic"],
+    },
+  ];
+
+  const result = await batchTransaction(queries);
+  if(result.success){
+    // 
+  }else{
+    // Automated rollback
+  }
+}
+
+onboardNewUser();
 ```
+
+</details>
+
 
 ## 🛣️ Roadmap
 
 SQL-Buns is intentionally **not an ORM** — it’s about giving you direct access with an extra-light utility belt. But we know some teams want more structure.
 
 - **Group transaction helper** → wrap multiple SQL operations together as one atomic operation. They either all succeed or all fail. If one query breaks, nothing is saved.
-  ![Planned](https://img.shields.io/badge/status-planned-blue)
+  ![Completed](https://img.shields.io/badge/status-completed-green)
 
 - **Bulk insert with return** → inserting one row and returning it is straightforward; this will let you insert many rows at once and get them all back in a single call.
   ![Planned](https://img.shields.io/badge/status-planned-blue)
