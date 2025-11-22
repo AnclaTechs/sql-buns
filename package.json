@@ -1,6 +1,6 @@
 {
   "name": "@anclatechs/sql-buns",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "Lightweight SQL utility for Node.js (MySQL, PostgreSQL, SQLite) with raw queries",
   "main": "src/dist.js",
   "types": "src/dist.d.ts",
