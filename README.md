@@ -328,11 +328,11 @@ SQL-Buns is intentionally **not an ORM** — it’s about giving you direct acce
 - **Bulk insert with return** → inserting one row and returning it is straightforward; this will let you insert many rows at once and get them all back in a single call.
   ![Planned](https://img.shields.io/badge/status-planned-blue)
 
-- **Optional database modeling** → Defining lightweight models on top of your queries, without locking you in.
-  ![Completed](https://img.shields.io/badge/status-future%20consideration-green)
+- [**Optional database modeling**](https://www.npmjs.com/package/@anclatechs/sql-buns-migrate) → Defining lightweight models on top of your queries, without locking you in.
+  ![Completed](https://img.shields.io/badge/status-completed-green)
 
-- **Migrations management** → simple and native, so you can version and evolve your schema alongside your codebase.
-  ![Completed](https://img.shields.io/badge/status-future%20consideration-green)
+- [**Migrations management**](https://www.npmjs.com/package/@anclatechs/sql-buns-migrate) → simple and native, so you can version and evolve your schema alongside your codebase.
+  ![Completed](https://img.shields.io/badge/status-completed-green)
 
 We’ll keep things **lean, transparent, and optional**. Nothing heavy, nothing you can’t see through.
 
