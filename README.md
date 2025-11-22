@@ -329,10 +329,10 @@ SQL-Buns is intentionally **not an ORM** — it’s about giving you direct acce
   ![Planned](https://img.shields.io/badge/status-planned-blue)
 
 - **Optional database modeling** → Defining lightweight models on top of your queries, without locking you in.
-  ![Future Consideration](https://img.shields.io/badge/status-future%20consideration-yellow)
+  ![Completed](https://img.shields.io/badge/status-future%20consideration-green)
 
 - **Migrations management** → simple and native, so you can version and evolve your schema alongside your codebase.
-  ![Future Consideration](https://img.shields.io/badge/status-future%20consideration-yellow)
+  ![Completed](https://img.shields.io/badge/status-future%20consideration-green)
 
 We’ll keep things **lean, transparent, and optional**. Nothing heavy, nothing you can’t see through.
 
