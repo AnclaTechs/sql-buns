@@ -258,8 +258,7 @@ const poolProxy = new Proxy(
 );
 
 poolPromise
-  .then((resolvedPool) => {
-    pool = resolvedPool;
+  .then(() => {
     console.log(`${SQL_ENGINE} database connection established successfully`);
   })
   .catch((error) => {
